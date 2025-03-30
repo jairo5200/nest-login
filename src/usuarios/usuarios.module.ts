@@ -10,4 +10,3 @@ import { Usuario } from './usuario.entity';
   providers: [UsuariosService],
 })
 export class UsuariosModule {}
-
