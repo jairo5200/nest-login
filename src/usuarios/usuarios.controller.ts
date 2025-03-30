@@ -10,6 +10,7 @@ import {
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { UsuariosService } from './usuarios.service';
 import { ActualizarUsuarioDto } from './dto/actualizar-usuario.dto';
+import { CrearPerfilDto } from './dto/crear-perfil.dto';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -45,5 +46,10 @@ export class UsuariosController {
     @Body() usuario: ActualizarUsuarioDto,
   ) {
     return await this.usuariosService.actualizarUsuario(id, usuario);
+  }
+
+  @Post(':id/perfil')
+  async crearPerfil(@Param('id') id: number, @Body() perfil: CrearPerfilDto) {
+    return await this.usuariosService.crearPerfil(id, perfil);
   }
 }
