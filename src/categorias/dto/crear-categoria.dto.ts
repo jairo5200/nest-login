@@ -2,8 +2,8 @@ import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CrearCategoriaDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @IsString()
+  @IsString({ message: 'El nombre debe ser una cadena de caracteres' })
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'El nombre no puede estar vacío' })
   nombre: string;
 }

@@ -1,4 +1,4 @@
-import { IsInt, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsString, Max } from 'class-validator';
 
 export class CrearPerfilDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -9,8 +9,6 @@ export class CrearPerfilDto {
   apellido: string;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @IsInt({ message: 'La edad debe ser un número entero' })
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @Min(18, { message: 'La edad mínima debe ser 18' })
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @Max(100, { message: 'La edad máxima debe ser 100' })
   edad: number;

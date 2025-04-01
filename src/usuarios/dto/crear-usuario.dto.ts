@@ -9,7 +9,7 @@ export class CrearUsuarioDto {
   @IsString({ message: 'El email debe ser una cadena de texto' }) // Asegura que sea una cadena
   email: string;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  @IsNotEmpty({ message: 'El email es obligatorio' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @IsString({ message: 'La contraseña debe ser una cadena de texto' })
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
