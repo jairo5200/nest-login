@@ -6,13 +6,28 @@ import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { ActualizarUsuarioDto } from './dto/actualizar-usuario.dto';
 import { CrearPerfilDto } from './dto/crear-perfil.dto';
 import { Perfil } from './perfil.entity';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { validarUsuarioDto } from './dto/validar-usuario.dto';
 
 @Injectable()
 export class UsuariosService {
   constructor(
     @InjectRepository(Usuario) private usuarioRepository: Repository<Usuario>,
     @InjectRepository(Perfil) private perfilRepository: Repository<Perfil>,
+    private jwtService: JwtService,
   ) {}
+
+  // Registro de usuario (se podría modificar para aceptar más campos)
+  async registrar(usuario: CrearUsuarioDto) {
+    const hashedPassword = await bcrypt.hash(usuario.password, 10);
+    const newUser = this.usuarioRepository.create({
+      username: usuario.username,
+      password: hashedPassword,
+      roles: JSON.stringify('user'),
+    });
+    return this.usuarioRepository.save(newUser);
+  }
 
   async crearUsuario(usuario: CrearUsuarioDto) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
@@ -78,5 +93,41 @@ export class UsuariosService {
     const perfilGuardado = await this.perfilRepository.save(perfilCreado);
     usuarioEncontrado.perfil = perfilGuardado;
     return this.usuarioRepository.save(usuarioEncontrado);
+  }
+
+  // Autenticación de usuario
+  async validarUsuario(usuario: CrearUsuarioDto) {
+    const user = await this.usuarioRepository.findOne({
+      where: { username: usuario.username },
+    });
+    if (!user) {
+      return null;
+    }
+
+    const isMatch = await bcrypt.compare(usuario.password, user.password);
+    if (!isMatch) {
+      return null;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...result } = user; // Excluir la contraseña
+    return result;
+  }
+
+  // Generación del JWT
+  async login(usuario: validarUsuarioDto) {
+    const usuarioEncontrado = await this.usuarioRepository.findOne({
+      where: { username: usuario.username },
+    });
+    if (usuarioEncontrado) {
+      const payload = {
+        username: usuario.username,
+        sub: usuarioEncontrado.id,
+        roles: usuario.roles,
+      };
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
+    }
   }
 }

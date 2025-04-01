@@ -27,6 +27,9 @@ export class Usuario {
   })
   authStrategy: string;
 
+  @Column('text') // Usamos 'text' para almacenar el JSON
+  roles: string; // Este campo almacenará el JSON con los roles
+
   @OneToOne(() => Perfil)
   @JoinColumn({ name: 'perfil_id' })
   perfil: Perfil;

@@ -6,15 +6,25 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { UsuariosService } from './usuarios.service';
 import { ActualizarUsuarioDto } from './dto/actualizar-usuario.dto';
 import { CrearPerfilDto } from './dto/crear-perfil.dto';
+import { LogearUsuarioDto } from './dto/logear-usuarios.dto';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private usuariosService: UsuariosService) {}
+
+  @Post('registrar')
+  async registrar(@Body() usuario: CrearUsuarioDto) {
+    return this.usuariosService.registrar(usuario);
+  }
 
   @Post()
   async crearUsuario(@Body() usuario: CrearUsuarioDto) {
@@ -22,6 +32,8 @@ export class UsuariosController {
     return nuevoUsuario;
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('user')
   @Get()
   async obtenerUsuarios() {
     const usuarios = await this.usuariosService.obtenerUsuarios();
@@ -51,5 +63,14 @@ export class UsuariosController {
   @Post(':id/perfil')
   async crearPerfil(@Param('id') id: number, @Body() perfil: CrearPerfilDto) {
     return await this.usuariosService.crearPerfil(id, perfil);
+  }
+
+  @Post('login')
+  async login(@Body() usuario: LogearUsuarioDto) {
+    const user = await this.usuariosService.validarUsuario(usuario);
+    if (!user) {
+      return { message: 'Invalid credentials' };
+    }
+    return this.usuariosService.login(user);
   }
 }
