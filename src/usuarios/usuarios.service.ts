@@ -22,7 +22,7 @@ export class UsuariosService {
   async registrar(usuario: CrearUsuarioDto) {
     const hashedPassword = await bcrypt.hash(usuario.password, 10);
     const newUser = this.usuarioRepository.create({
-      username: usuario.username,
+      email: usuario.email,
       password: hashedPassword,
       roles: JSON.stringify('user'),
     });
@@ -31,7 +31,7 @@ export class UsuariosService {
 
   async crearUsuario(usuario: CrearUsuarioDto) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: { username: usuario.username },
+      where: { email: usuario.email },
     });
     if (usuarioEncontrado) {
       return new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
@@ -98,7 +98,7 @@ export class UsuariosService {
   // Autenticación de usuario
   async validarUsuario(usuario: CrearUsuarioDto) {
     const user = await this.usuarioRepository.findOne({
-      where: { username: usuario.username },
+      where: { email: usuario.email },
     });
     if (!user) {
       return null;
@@ -117,11 +117,11 @@ export class UsuariosService {
   // Generación del JWT
   async login(usuario: validarUsuarioDto) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: { username: usuario.username },
+      where: { email: usuario.email },
     });
     if (usuarioEncontrado) {
       const payload = {
-        username: usuario.username,
+        email: usuario.email,
         sub: usuarioEncontrado.id,
         roles: usuario.roles,
       };

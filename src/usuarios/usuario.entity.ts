@@ -11,8 +11,8 @@ import { Perfil } from './perfil.entity';
 export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ unique: true })
-  username: string;
+  @Column({ unique: true, type: 'varchar', length: 255 })
+  email: string;
   @Column()
   password: string;
   @Column({
@@ -21,11 +21,6 @@ export class Usuario {
     name: 'created_at',
   })
   createdAt: Date;
-  @Column({
-    nullable: true,
-    name: 'auth_strategy',
-  })
-  authStrategy: string;
 
   @Column('text') // Usamos 'text' para almacenar el JSON
   roles: string; // Este campo almacenará el JSON con los roles

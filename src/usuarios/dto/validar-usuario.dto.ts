@@ -2,9 +2,8 @@ import { Perfil } from '../perfil.entity';
 
 export class validarUsuarioDto {
   id: number;
-  username: string;
+  email: string;
   createdAt: Date;
-  authStrategy: string;
   roles: string;
   perfil: Perfil;
 }
