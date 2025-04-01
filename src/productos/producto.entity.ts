@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Categoria } from 'src/categorias/categoria.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({
   name: 'productos',
@@ -18,4 +25,11 @@ export class Producto {
 
   @Column()
   cantidad: number;
+
+  // Relación ManyToOne con Categoria, asegurando que no sea nullable
+  @ManyToOne(() => Categoria, (categoria) => categoria.productos, {
+    nullable: false,
+  }) // Relación no nullable
+  @JoinColumn({ name: 'categoria_id' })
+  categoria: Categoria; // Relación con la categoría, ahora no puede ser nula
 }

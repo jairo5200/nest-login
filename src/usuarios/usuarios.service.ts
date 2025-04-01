@@ -20,6 +20,12 @@ export class UsuariosService {
 
   // Registro de usuario (se podría modificar para aceptar más campos)
   async registrar(usuario: CrearUsuarioDto) {
+    const usuarioEncontrado = await this.usuarioRepository.findOne({
+      where: { email: usuario.email },
+    });
+    if (usuarioEncontrado) {
+      return new HttpException('El usuario ya existe.', HttpStatus.CONFLICT);
+    }
     const hashedPassword = await bcrypt.hash(usuario.password, 10);
     const newUser = this.usuarioRepository.create({
       email: usuario.email,
@@ -29,26 +35,20 @@ export class UsuariosService {
     return this.usuarioRepository.save(newUser);
   }
 
-  async crearUsuario(usuario: CrearUsuarioDto) {
-    const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: { email: usuario.email },
+  async obtenerUsuarios() {
+    const usuarios = await this.usuarioRepository.find({
+      select: ['id', 'email', 'roles'],
     });
-    if (usuarioEncontrado) {
-      return new HttpException('El usuario ya existe', HttpStatus.CONFLICT);
-    }
-    return this.usuarioRepository.save(usuario);
-  }
-
-  obtenerUsuarios() {
-    return this.usuarioRepository.find();
+    return usuarios;
   }
 
   async obtenerUsuarioPorId(id: number) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: { id: id },
+      where: { id },
+      select: ['id', 'email', 'roles'],
     });
     if (!usuarioEncontrado) {
-      return new HttpException('El usuario no existe', HttpStatus.NOT_FOUND);
+      return new HttpException('El usuario no existe.', HttpStatus.NOT_FOUND);
     }
     return usuarioEncontrado;
   }
@@ -58,25 +58,45 @@ export class UsuariosService {
       where: { id: id },
     });
     if (!usuarioEncontrado) {
-      return new HttpException('El usuario no existe', HttpStatus.NOT_FOUND);
+      return new HttpException(
+        'El usuario a eliminar no existe.',
+        HttpStatus.NOT_FOUND,
+      );
     }
     return this.usuarioRepository.delete(id);
   }
 
+  // Actualizar un usuario
   async actualizarUsuario(id: number, usuarioDto: ActualizarUsuarioDto) {
+    // Buscar el usuario en la base de datos
     const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
+    // Si el usuario no existe, lanzar una excepción
     if (!usuarioEncontrado) {
-      return new HttpException('El usuario no existe', HttpStatus.NOT_FOUND);
+      return new HttpException(
+        'El usuario a actualizar no existe.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Si se proporciona una nueva contraseña, encriptarla
+    if (usuarioDto.password) {
+      const hashedPassword = await bcrypt.hash(usuarioDto.password, 10);
+      usuarioDto.password = hashedPassword; // Asignamos la nueva contraseña encriptada
     }
 
     // Asignar las propiedades del DTO al usuario encontrado
     const usuarioActualizado = Object.assign(usuarioEncontrado, usuarioDto);
+
+    // Guardar el usuario actualizado en la base de datos
     await this.usuarioRepository.save(usuarioActualizado);
+
+    // Retornar el usuario actualizado, sin la contraseña por seguridad
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...usuarioSinContraseña } = usuarioActualizado;
+    return usuarioSinContraseña;
   }
 
   async crearPerfil(id: number, perfil: CrearPerfilDto) {
@@ -86,7 +106,7 @@ export class UsuariosService {
       },
     });
     if (!usuarioEncontrado) {
-      return new HttpException('El usuario no existe', HttpStatus.NOT_FOUND);
+      return new HttpException('El usuario no existe.', HttpStatus.NOT_FOUND);
     }
     // Crear un nuevo perfil y asignarlo al usuario
     const perfilCreado = this.perfilRepository.create(perfil);

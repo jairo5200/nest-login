@@ -26,12 +26,6 @@ export class UsuariosController {
     return this.usuariosService.registrar(usuario);
   }
 
-  @Post()
-  async crearUsuario(@Body() usuario: CrearUsuarioDto) {
-    const nuevoUsuario = await this.usuariosService.crearUsuario(usuario);
-    return nuevoUsuario;
-  }
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('user')
   @Get()
@@ -69,7 +63,7 @@ export class UsuariosController {
   async login(@Body() usuario: LogearUsuarioDto) {
     const user = await this.usuariosService.validarUsuario(usuario);
     if (!user) {
-      return { message: 'Invalid credentials' };
+      return { message: 'Credenciales invalidas' };
     }
     return this.usuariosService.login(user);
   }

@@ -15,5 +15,4 @@ export class LogearUsuarioDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password: string;
-  roles: string[];
 }
