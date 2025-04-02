@@ -13,7 +13,11 @@ async function bootstrap() {
     }),
   );
   // Habilitar CORS
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:5173', // Cambia esto con la URL de tu frontend
+    methods: 'GET,POST,PUT,PATCH,DELETE', // Métodos permitidos
+    allowedHeaders: 'Content-Type, Authorization', // Encabezados permitidos
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
