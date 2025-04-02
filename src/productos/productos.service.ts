@@ -169,17 +169,35 @@ export class ProductosService {
 
   // Eliminar un producto
   async eliminarProducto(id: number) {
+    // Buscar el producto para obtener la imagen asociada
     const productoEliminado = await this.productoRepository.findOne({
       where: { id },
     });
 
     if (!productoEliminado) {
-      return new HttpException(
+      throw new HttpException(
         'El producto a eliminar no existe.',
         HttpStatus.NOT_FOUND,
       );
     }
 
-    return this.productoRepository.delete(id);
+    // Verificar si el producto tiene una imagen asociada y eliminarla
+    if (productoEliminado.imagenUrl) {
+      try {
+        // Eliminar la imagen del servidor
+        unlinkSync(`./uploads/${productoEliminado.imagenUrl}`);
+        console.log('Imagen eliminada correctamente');
+      } catch (err) {
+        console.error('Error al eliminar la imagen:', err);
+        throw new HttpException(
+          'Error al eliminar la imagen del producto.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+
+    // Eliminar el producto de la base de datos
+    await this.productoRepository.delete(id);
+    return;
   }
 }
