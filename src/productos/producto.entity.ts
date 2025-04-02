@@ -26,6 +26,9 @@ export class Producto {
   @Column()
   cantidad: number;
 
+  @Column({ nullable: true })
+  imagenUrl: string;
+
   // Relación ManyToOne con Categoria, asegurando que no sea nullable
   @ManyToOne(() => Categoria, (categoria) => categoria.productos, {
     nullable: false,

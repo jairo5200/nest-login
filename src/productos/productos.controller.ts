@@ -7,18 +7,46 @@ import {
   Put,
   Delete,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { ProductosService } from './productos.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import * as multer from 'multer';
+
 
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
-  // Crear un nuevo producto
+  // Crear un nuevo producto con imagen
   @Post()
-  async crearProducto(@Body() producto: CrearProductoDto) {
-    const nuevoProducto = await this.productosService.crearProducto(producto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: multer.diskStorage({
+        destination: './uploads', // Directorio donde se guardarán las imágenes
+        filename: (req, file, cb) => {
+          const filename = `${Date.now()}${extname(file.originalname)}`;
+          cb(null, filename); // Usamos un timestamp para evitar nombres repetidos
+        },
+      }),
+    }),
+  )
+  async crearProducto(
+    @Body() producto: CrearProductoDto,
+    @UploadedFile() file: Express.Multer.File, // Aquí se obtiene la imagen subida
+  ) {
+    // Aquí podemos asignar la URL del archivo subido a la entidad del producto
+    const imagenUrl = file ? file.filename : "";
+
+    // Crear el nuevo producto
+    const nuevoProducto = await this.productosService.crearProducto({
+      ...producto,
+      imagenUrl,
+    });
+
     return nuevoProducto;
   }
 
@@ -58,4 +86,5 @@ export class ProductosController {
     const resultado = await this.productosService.eliminarProducto(id);
     return resultado;
   }
+
 }

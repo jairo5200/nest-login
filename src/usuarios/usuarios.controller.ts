@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -63,7 +65,10 @@ export class UsuariosController {
   async login(@Body() usuario: LogearUsuarioDto) {
     const user = await this.usuariosService.validarUsuario(usuario);
     if (!user) {
-      return { message: 'Credenciales invalidas' };
+      return new HttpException(
+        'Usuario o contraseña incorrectos.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
     return this.usuariosService.login(user);
   }
