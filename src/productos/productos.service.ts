@@ -3,18 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Producto } from './producto.entity';
 import { Not, Repository } from 'typeorm';
 import { CrearProductoDto } from './dto/crear-producto.dto';
+import { CategoriasService } from 'src/categorias/categorias.service';
 
 @Injectable()
 export class ProductosService {
   constructor(
     @InjectRepository(Producto)
     private productoRepository: Repository<Producto>,
+    private categoriasService: CategoriasService,
   ) {}
 
   // Crear un nuevo producto
-  async crearProducto(producto: CrearProductoDto) {
+  async crearProducto(productoDto: CrearProductoDto) {
+    // Verificar si el producto ya existe
     const productoEncontrado = await this.productoRepository.findOne({
-      where: { nombre: producto.nombre },
+      where: { nombre: productoDto.nombre },
     });
 
     if (productoEncontrado) {
@@ -24,7 +27,26 @@ export class ProductosService {
       );
     }
 
-    const nuevoProducto = this.productoRepository.create(producto);
+    // Buscar la categoría correspondiente
+    const categoria = await this.categoriasService.obtenerCategoriaPorId(
+      productoDto.categoria_id,
+    );
+    if (!categoria) {
+      return new HttpException('Categoría no válida', HttpStatus.BAD_REQUEST);
+    }
+
+    // Si no se encuentra la categoría, lanzamos una excepción para evitar crear el producto
+    if (categoria instanceof HttpException) {
+      throw categoria; // Lanzamos la excepción que fue retornada desde el servicio de categorías
+    }
+
+    // Crear el nuevo producto y asignar la categoría
+    const nuevoProducto = this.productoRepository.create({
+      ...productoDto, // Desestructuramos el DTO
+      categoria, // Asignamos la categoría encontrada
+    });
+
+    // Guardar el producto en la base de datos
     return this.productoRepository.save(nuevoProducto);
   }
 
