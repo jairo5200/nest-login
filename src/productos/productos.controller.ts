@@ -15,6 +15,7 @@ import { ProductosService } from './productos.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import * as multer from 'multer';
+import { unlink } from 'fs';
 
 
 @Controller('productos')
@@ -38,17 +39,31 @@ export class ProductosController {
     @Body() producto: CrearProductoDto,
     @UploadedFile() file: Express.Multer.File, // Aquí se obtiene la imagen subida
   ) {
-    // Aquí podemos asignar la URL del archivo subido a la entidad del producto
-    const imagenUrl = file ? file.filename : "";
+    try {
+      const imagenUrl = file ? file.filename : "";
 
-    // Crear el nuevo producto
-    const nuevoProducto = await this.productosService.crearProducto({
-      ...producto,
-      imagenUrl,
-    });
+      // Crear el nuevo producto
+      const nuevoProducto = await this.productosService.crearProducto({
+        ...producto,
+        imagenUrl,
+      });
 
-    return nuevoProducto;
+      return nuevoProducto;
+    } catch (error) {
+      // Si ocurre un error durante la creación del producto, eliminamos la imagen del servidor
+      if (file) {
+        unlink(`./uploads/${file.filename}`, (err) => {
+          if (err) {
+            console.error('Error al eliminar el archivo de imagen:', err);
+          } else {
+            console.log('Archivo de imagen eliminado correctamente');
+          }
+        });
+      }
+      throw error; // Vuelve a lanzar el error para que pueda ser manejado más arriba si es necesario
+    }
   }
+
 
   // Obtener todos los productos
   @Get()

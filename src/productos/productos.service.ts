@@ -21,7 +21,7 @@ export class ProductosService {
     });
 
     if (productoEncontrado) {
-      return new HttpException(
+      throw new HttpException(
         'El nombre del producto ya esta en uso',
         HttpStatus.CONFLICT,
       );
@@ -32,7 +32,7 @@ export class ProductosService {
       productoDto.categoria_id,
     );
     if (!categoria) {
-      return new HttpException('Categoría no válida', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Categoría no válida', HttpStatus.BAD_REQUEST);
     }
 
     // Si no se encuentra la categoría, lanzamos una excepción para evitar crear el producto

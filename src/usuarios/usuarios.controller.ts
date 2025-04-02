@@ -65,7 +65,7 @@ export class UsuariosController {
   async login(@Body() usuario: LogearUsuarioDto) {
     const user = await this.usuariosService.validarUsuario(usuario);
     if (!user) {
-      return new HttpException(
+      throw new HttpException(
         'Usuario o contraseña incorrectos.',
         HttpStatus.UNAUTHORIZED,
       );
