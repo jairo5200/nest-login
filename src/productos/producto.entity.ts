@@ -1,38 +1,32 @@
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Categoria } from 'src/categorias/categoria.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { ProductoCarrito } from 'src/carrito/producto_carrito.entity';
 
-@Entity({
-  name: 'productos',
-})
+@Entity({ name: 'productos' })
 export class Producto {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, length: 255 })
   nombre: string;
 
-  @Column()
+  @Column({ type: 'text' })
   descripcion: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   precio: number;
 
-  @Column()
+  @Column({ type: 'int', unsigned: true })
   cantidad: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 500 })
   imagenUrl: string;
 
-  // Relación ManyToOne con Categoria, asegurando que no sea nullable
-  @ManyToOne(() => Categoria, (categoria) => categoria.productos, {
-    nullable: false,
-  }) // Relación no nullable
+  @ManyToOne(() => Categoria, (categoria) => categoria.productos, { nullable: false })
   @JoinColumn({ name: 'categoria_id' })
-  categoria: Categoria; // Relación con la categoría, ahora no puede ser nula
+  categoria: Categoria;
+
+  @OneToMany(() => ProductoCarrito, (productoCarrito) => productoCarrito.producto)
+  productosCarrito: ProductoCarrito[];
 }
+

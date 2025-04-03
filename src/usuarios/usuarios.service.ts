@@ -48,7 +48,7 @@ export class UsuariosService {
       select: ['id', 'email', 'roles'],
     });
     if (!usuarioEncontrado) {
-      return new HttpException('El usuario no existe.', HttpStatus.NOT_FOUND);
+      throw new HttpException('El usuario no existe.', HttpStatus.NOT_FOUND);
     }
     return usuarioEncontrado;
   }

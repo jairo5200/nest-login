@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductosModule } from './productos/productos.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CategoriasModule } from './categorias/categorias.module';
+import { CarritoModule } from './carrito/carrito.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CategoriasModule } from './categorias/categorias.module';
     UsuariosModule,
     ProductosModule,
     CategoriasModule,
+    CarritoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
