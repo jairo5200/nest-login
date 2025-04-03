@@ -7,6 +7,7 @@ import { ProductosModule } from './productos/productos.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CategoriasModule } from './categorias/categorias.module';
 import { CarritoModule } from './carrito/carrito.module';
+import { VentasModule } from './ventas/ventas.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CarritoModule } from './carrito/carrito.module';
     ProductosModule,
     CategoriasModule,
     CarritoModule,
+    VentasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
