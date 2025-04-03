@@ -4,9 +4,11 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Perfil } from './perfil.entity';
 import { Carrito } from 'src/carrito/carrito.entity';
+import { Venta } from 'src/ventas/venta.entity';
 
 @Entity({ name: 'usuarios' })
 export class Usuario {
@@ -33,5 +35,8 @@ export class Usuario {
   @OneToOne(() => Carrito, (carrito) => carrito.usuario)
   @JoinColumn({ name: 'carrito_id' })
   carrito: Carrito;
+
+  @OneToMany(() => Venta, (venta) => venta.usuario)
+  ventas: Venta[];
 }
 

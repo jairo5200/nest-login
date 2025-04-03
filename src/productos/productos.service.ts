@@ -56,18 +56,19 @@ export class ProductosService {
     return this.productoRepository.find();
   }
 
-  // Obtener un producto por su ID
+  // 📌 Obtener un producto por su ID con la categoría incluida
   async obtenerProductoPorId(id: number) {
-    const productoEncontrado = await this.productoRepository.findOne({
-      where: { id },
-    });
+  const productoEncontrado = await this.productoRepository.findOne({
+    where: { id },
+    relations: ['categoria'], // Incluir la relación con la categoría
+  });
 
-    if (!productoEncontrado) {
-      throw new HttpException('El producto no existe.', HttpStatus.NOT_FOUND);
-    }
-
-    return productoEncontrado;
+  if (!productoEncontrado) {
+    throw new HttpException('El producto no existe.', HttpStatus.NOT_FOUND);
   }
+
+  return productoEncontrado;
+}
 
   // Actualizar un producto
   async actualizarProducto(id: number, updateProductoDto: CrearProductoDto, file: Express.Multer.File) {

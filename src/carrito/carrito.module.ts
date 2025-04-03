@@ -13,6 +13,7 @@ import { ProductoCarrito } from './producto_carrito.entity';
     ProductosModule,  // Módulo de productos
   ],
   controllers: [CarritoController],
-  providers: [CarritoService]
+  providers: [CarritoService],
+  exports: [CarritoService],
 })
 export class CarritoModule {}
