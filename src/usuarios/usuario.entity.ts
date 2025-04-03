@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Perfil } from './perfil.entity';
+import { Carrito } from 'src/carrito/carrito.entity';
 
 @Entity({ name: 'usuarios' })
 export class Usuario {
@@ -28,4 +29,9 @@ export class Usuario {
   @OneToOne(() => Perfil)
   @JoinColumn({ name: 'perfil_id' })
   perfil: Perfil;
+
+  @OneToOne(() => Carrito, (carrito) => carrito.usuario)
+  @JoinColumn({ name: 'carrito_id' })
+  carrito: Carrito;
 }
+

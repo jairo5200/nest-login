@@ -90,7 +90,9 @@ export class ProductosService {
       // Verificar si el nombre del producto está siendo modificado y ya existe en otro producto
       if (productoExistente.nombre !== updateProductoDto.nombre) {
         const productoConNombreExistente = await this.productoRepository.findOne({
-          where: { nombre: updateProductoDto.nombre },
+          where: { nombre: updateProductoDto.nombre,
+          id: Not(id),
+          },
         });
 
         if (productoConNombreExistente) {
