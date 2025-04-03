@@ -75,4 +75,22 @@ export class CarritoService {
       return 'Producto eliminado del carrito';
     }
   }
+
+  // 📌 Vaciar el carrito de un usuario
+  async vaciarCarrito(usuarioId: number): Promise<void> {
+    // 🔹 Buscar el carrito del usuario
+    const carrito = await this.carritoRepository.findOne({
+      where: { usuario: { id: usuarioId } },
+      relations: ['productosCarrito'],
+    });
+
+    if (!carrito) {
+      throw new NotFoundException('Carrito no encontrado');
+    }
+
+    // 🔹 Eliminar los productos del carrito
+    await this.productoCarritoRepository.delete({ carrito: { id: carrito.id } });
+
+    await this.carritoRepository.save(carrito);
+  }
 }

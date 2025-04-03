@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
@@ -18,6 +19,7 @@ import { LogearUsuarioDto } from './dto/logear-usuarios.dto';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Response } from 'express';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -62,7 +64,7 @@ export class UsuariosController {
   }
 
   @Post('login')
-  async login(@Body() usuario: LogearUsuarioDto) {
+  async login(@Body() usuario: LogearUsuarioDto, @Res() res: Response) {
     const user = await this.usuariosService.validarUsuario(usuario);
     if (!user) {
       throw new HttpException(
@@ -70,6 +72,6 @@ export class UsuariosController {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    return this.usuariosService.login(user);
+    return this.usuariosService.login(user, res);
   }
 }

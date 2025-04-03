@@ -14,6 +14,6 @@ export class Carrito {
   @OneToMany(() => ProductoCarrito, (productoCarrito) => productoCarrito.carrito)
   productosCarrito: ProductoCarrito[];
 
-  @Column({ type: 'enum', enum: ['Activo', 'Abandonado', 'Finalizado'], default: 'Activo' })
+  @Column({ default: 'Activo' })
   estado: string;
 }

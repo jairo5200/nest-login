@@ -49,7 +49,7 @@ export class VentasService {
       productosVenta.push(await this.productoVentaRepository.save(productoVenta));
 
       // ✅ Usamos `ProductosService` para reducir el stock
-      //await this.productosService.reducirStock(productoValidado.id, cantidad);
+      await this.productosService.reducirStock(productoValidado.id, cantidad);
     }
 
     // 🔹 Crear la venta
@@ -62,7 +62,7 @@ export class VentasService {
     await this.ventaRepository.save(venta);
 
     // ✅ Usamos `CarritoService` para vaciar el carrito
-    //await this.carritoService.vaciarCarrito(usuarioId);
+    await this.carritoService.vaciarCarrito(usuarioId);
 
     return venta;
   }

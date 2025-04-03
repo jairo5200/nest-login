@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Producto } from './producto.entity';
 import { Not, Repository } from 'typeorm';
@@ -203,4 +203,24 @@ export class ProductosService {
     await this.productoRepository.delete(id);
     return;
   }
+
+  // 📌 Reducir stock de un producto
+  async reducirStock(productoId: number, cantidad: number): Promise<Producto> {
+    // 🔹 Buscar el producto por ID
+    const producto = await this.productoRepository.findOne({ where: { id: productoId } });
+
+    if (!producto) {
+      throw new NotFoundException(`Producto con ID ${productoId} no encontrado`);
+    }
+
+    // 🔹 Validar que haya suficiente stock
+    if (producto.cantidad < cantidad) {
+      throw new BadRequestException(`Stock insuficiente para el producto ${producto.nombre}`);
+    }
+
+    // 🔹 Reducir el stock y guardar el cambio
+    producto.cantidad -= cantidad;
+    return await this.productoRepository.save(producto);
+  }
 }
+

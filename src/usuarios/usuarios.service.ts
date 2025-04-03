@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './usuario.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { Perfil } from './perfil.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { validarUsuarioDto } from './dto/validar-usuario.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class UsuariosService {
@@ -134,20 +135,31 @@ export class UsuariosService {
     return result;
   }
 
-  // Generación del JWT
-  async login(usuario: validarUsuarioDto) {
+  async login(usuario: validarUsuarioDto, res: Response) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
       where: { email: usuario.email },
     });
-    if (usuarioEncontrado) {
-      const payload = {
-        email: usuario.email,
-        sub: usuarioEncontrado.id,
-        roles: usuario.roles,
-      };
-      return {
-        access_token: this.jwtService.sign(payload),
-      };
+  
+    if (!usuarioEncontrado) {
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
+  
+    const payload = {
+      email: usuario.email,
+      sub: usuarioEncontrado.id,
+      roles: usuario.roles,
+    };
+  
+    const token = this.jwtService.sign(payload);
+  
+    // 🔹 Establecer la cookie en la respuesta
+    res.cookie('jwt', token, {
+      httpOnly: true, // Seguridad: evita acceso desde JavaScript en el frontend
+      secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
+      sameSite: 'strict', // Evita ataques CSRF
+      maxAge: 24 * 60 * 60 * 1000, // Expira en 1 día
+    });
+  
+    return res.send({ message: 'Login exitoso' });
   }
 }
