@@ -200,8 +200,7 @@ export class ProductosService {
     }
 
     // Eliminar el producto de la base de datos
-    await this.productoRepository.delete(id);
-    return;
+    return await this.productoRepository.delete(id);
   }
 
   // 📌 Reducir stock de un producto

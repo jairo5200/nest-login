@@ -1,7 +1,11 @@
 import { Transform } from "class-transformer";
 import { IsNumber, Min } from "class-validator";
 
-export class AgregarProductoDto {
+export class ModificarProductoDto {
+  @Transform(({ value }) => Number(value))  // Convierte a número
+  @IsNumber({}, { message: 'El id del carrito debe ser un número' })
+  @Min(1, { message: 'El id del carrito debe ser mayor o igual a 1' })
+  carritoId: number;
   @Transform(({ value }) => Number(value))  // Convierte a número
   @IsNumber({}, { message: 'El id del producto debe ser un número' })
   @Min(1, { message: 'El id del producto debe ser mayor o igual a 1' })

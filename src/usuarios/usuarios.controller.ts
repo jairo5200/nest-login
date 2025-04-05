@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -50,13 +51,14 @@ export class UsuariosController {
     return usuarioEliminado;
   }
 
-  @Patch(':id')
+  @Put(':id')
   async actualizarUsuario(
     @Param('id') id: number,
     @Body() usuario: ActualizarUsuarioDto,
   ) {
     return await this.usuariosService.actualizarUsuario(id, usuario);
   }
+
 
   @Post(':id/perfil')
   async crearPerfil(@Param('id') id: number, @Body() perfil: CrearPerfilDto) {

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Carrito } from './carrito.entity';
 import { ProductoCarrito } from './producto_carrito.entity';
 import { ProductosService } from 'src/productos/productos.service'; // Importamos ProductosService
+import { UsuariosService } from 'src/usuarios/usuarios.service';
 
 @Injectable()
 export class CarritoService {
@@ -14,24 +15,27 @@ export class CarritoService {
     @InjectRepository(ProductoCarrito)
     private readonly productoCarritoRepository: Repository<ProductoCarrito>,
 
-    private readonly productosService: ProductosService,  // Inyectamos el servicio
+    private readonly productosService: ProductosService,
+    
+    private readonly usuariosService: UsuariosService,
   ) {}
 
-  async obtenerCarrito(usuarioId: number){
-    let carrito = await this.carritoRepository.findOne({
+  async obtenerCarrito(usuarioId: number) {
+    // Verificar si el usuario existe
+    const usuarioExiste = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
+  
+    if (!usuarioExiste) {
+      throw new NotFoundException(`No existe un usuario con ID ${usuarioId}.`);
+    }
+  
+    // Buscar carrito del usuario
+    const carrito = await this.carritoRepository.findOne({
       where: { usuario: { id: usuarioId } },
       relations: ['productosCarrito', 'productosCarrito.producto'],
     });
-      
-    if (!carrito) {
-      console.log('⚠️ El usuario no tiene un carrito. Creando uno nuevo...');
-      const nuevoCarrito = this.carritoRepository.create({
-        usuario: { id: usuarioId } as any, // ⚠️ TypeORM espera una entidad completa, `as any` evita problemas de tipado.
-        productosCarrito: [], // ✅ Relación correcta con los productos
-        estado: 'activo',
-      });
   
-      carrito = await this.carritoRepository.save(nuevoCarrito);
+    if (!carrito) {
+      throw new NotFoundException(`El usuario con ID ${usuarioId} no tiene un carrito.`);
     }
   
     return carrito;

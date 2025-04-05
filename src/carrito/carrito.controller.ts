@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
 import { CarritoService } from './carrito.service';
+import { ModificarProductoDto } from './dto/agregar-producto.dto';
 
 @Controller('carrito')
 export class CarritoController {
@@ -14,16 +15,16 @@ export class CarritoController {
   // 📌 Agregar producto al carrito
   @Post('agregar')
   async agregarProducto(
-    @Body() { carritoId, productoId, cantidad }: { carritoId: number; productoId: number; cantidad: number },
+    @Body() modificarProductoDto :ModificarProductoDto
   ) {
-    return this.carritoService.agregarProducto(carritoId, productoId, cantidad);
+    return this.carritoService.agregarProducto(modificarProductoDto.carritoId, modificarProductoDto.productoId, modificarProductoDto.cantidad);
   }
 
   // 📌 Eliminar o reducir cantidad de un producto en el carrito
   @Delete('eliminar')
   async eliminarProducto(
-    @Body() { carritoId, productoId, cantidad }: { carritoId: number; productoId: number; cantidad: number },
+    @Body() modificarProductoDto :ModificarProductoDto
   ) {
-    return this.carritoService.eliminarProducto(carritoId, productoId, cantidad);
+    return this.carritoService.eliminarProducto(modificarProductoDto.carritoId, modificarProductoDto.productoId, modificarProductoDto.cantidad);
   }
 }

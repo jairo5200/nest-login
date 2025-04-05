@@ -123,7 +123,6 @@ export class ProductosController {
 
 
   // Eliminar un producto
-  @HttpCode(HttpStatus.NO_CONTENT) // Establece explícitamente el código de estado 204
   @Delete(':id')
   async eliminarProducto(@Param('id') id: number) {
     const resultado = await this.productosService.eliminarProducto(id);

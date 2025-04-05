@@ -67,38 +67,48 @@ export class UsuariosService {
     return this.usuarioRepository.delete(id);
   }
 
-  // Actualizar un usuario
   async actualizarUsuario(id: number, usuarioDto: ActualizarUsuarioDto) {
     // Buscar el usuario en la base de datos
     const usuarioEncontrado = await this.usuarioRepository.findOne({
       where: { id },
     });
-
-    // Si el usuario no existe, lanzar una excepción
+  
     if (!usuarioEncontrado) {
-      return new HttpException(
+      throw new HttpException(
         'El usuario a actualizar no existe.',
         HttpStatus.NOT_FOUND,
       );
     }
-
-    // Si se proporciona una nueva contraseña, encriptarla
+  
+    // Validar si el nuevo email ya está en uso por otro usuario
+    if (usuarioDto.email) {
+      const usuarioConEmail = await this.usuarioRepository.findOne({
+        where: { email: usuarioDto.email },
+      });
+  
+      if (usuarioConEmail && usuarioConEmail.id !== id) {
+        throw new HttpException(
+          'El email ya está en uso por otro usuario.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+  
+    // Encriptar la contraseña si se proporciona una nueva
     if (usuarioDto.password) {
       const hashedPassword = await bcrypt.hash(usuarioDto.password, 10);
-      usuarioDto.password = hashedPassword; // Asignamos la nueva contraseña encriptada
+      usuarioDto.password = hashedPassword;
     }
-
-    // Asignar las propiedades del DTO al usuario encontrado
+  
+    // Actualizar los datos del usuario
     const usuarioActualizado = Object.assign(usuarioEncontrado, usuarioDto);
-
-    // Guardar el usuario actualizado en la base de datos
+  
     await this.usuarioRepository.save(usuarioActualizado);
-
-    // Retornar el usuario actualizado, sin la contraseña por seguridad
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  
     const { password, ...usuarioSinContraseña } = usuarioActualizado;
     return usuarioSinContraseña;
   }
+  
 
   async crearPerfil(id: number, perfil: CrearPerfilDto) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
