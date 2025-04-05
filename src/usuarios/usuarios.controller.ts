@@ -76,4 +76,10 @@ export class UsuariosController {
     }
     return this.usuariosService.login(user, res);
   }
+
+  @Post('logout')
+  logout(@Res() res: Response) {
+    res.clearCookie('jwt');
+    return res.status(200).json({ message: 'Sesión cerrada correctamente' });
+  }
 }
