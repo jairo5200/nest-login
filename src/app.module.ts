@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CategoriasModule } from './categorias/categorias.module';
 import { CarritoModule } from './carrito/carrito.module';
 import { VentasModule } from './ventas/ventas.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -37,6 +38,14 @@ import { VentasModule } from './ventas/ventas.module';
         };
       },
       inject: [ConfigService], // Inyectamos el ConfigService
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 20,
+        },
+      ],
     }),
     UsuariosModule,
     ProductosModule,
