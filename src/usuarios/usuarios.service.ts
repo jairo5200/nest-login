@@ -168,6 +168,7 @@ export class UsuariosService {
       secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
       sameSite: 'strict', // Evita ataques CSRF
       maxAge: 24 * 60 * 60 * 1000, // Expira en 1 día
+      path: '/',
     });
   
     return res.send({ message: 'Login exitoso' });

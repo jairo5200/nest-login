@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Venta } from './venta.entity';
 import { ProductoVenta } from './producto_venta.entity';
 import { CarritoService } from '../carrito/carrito.service';
 import { ProductosService } from 'src/productos/productos.service';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
+
+
 
 @Injectable()
 export class VentasService {
@@ -13,6 +17,7 @@ export class VentasService {
     @InjectRepository(ProductoVenta) private readonly productoVentaRepository: Repository<ProductoVenta>,
     private readonly carritoService: CarritoService,
     private readonly productosService: ProductosService,
+    private readonly httpService: HttpService,
   ) {}
 
   // 📌 Realizar una venta desde el carrito
@@ -85,5 +90,44 @@ export class VentasService {
     if (!venta) throw new NotFoundException('Venta no encontrada');
 
     return venta;
+  }
+
+  //generamos el certificado de pruebas de la Dian
+  async solicitarCertificado(pin: string, csrBase64: string) {
+
+    const cleanedCsr = csrBase64.replace(/\r?\n|\r/g, '');
+
+    const soapEnvelope = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:wcf="http://wcf.dian.colombia">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <wcf:GenerateCertificate>
+            <wcf:pin>${pin}</wcf:pin>
+            <wcf:certificateRequest>${cleanedCsr}</wcf:certificateRequest>
+          </wcf:GenerateCertificate>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `.trim();
+    
+    try {
+      const { data } = await lastValueFrom(
+        this.httpService.post(
+          'https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc',
+          soapEnvelope,
+          {
+            headers: {
+              'Content-Type': 'text/xml; charset=utf-8',
+              'SOAPAction': '"http://wcf.dian.colombia/IWcfDianCustomerServices/GenerateCertificate"',
+            },
+            timeout: 5000,
+            transformRequest: [(data) => data],
+          },
+        )
+      );
+    
+      console.log('Respuesta de la DIAN:', data);
+    } catch (error) {
+      console.error('Error al llamar a la DIAN:', error?.response?.data || error.message);
+    }
   }
 }

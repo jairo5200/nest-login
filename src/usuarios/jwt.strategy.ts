@@ -4,6 +4,7 @@ import { Strategy as JwtPassportStrategy } from 'passport-jwt';
 import { ExtractJwt } from 'passport-jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express'; // Necesario para acceder a la solicitud
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(JwtPassportStrategy) {
@@ -16,7 +17,10 @@ export class JwtStrategy extends PassportStrategy(JwtPassportStrategy) {
 
     // Configuración de la estrategia JWT
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(), // Para el header
+        (req: Request) => req.cookies['jwt'], // Para las cookies
+      ]),
       ignoreExpiration: false,
       secretOrKey: jwtSecret, // Usamos la variable de entorno para la clave secreta
     });

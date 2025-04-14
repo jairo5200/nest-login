@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Param, UseGuards, Request, Body } from '@nestjs/common';
 import { VentasService } from './ventas.service';
 import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
 
@@ -28,4 +28,9 @@ export class VentasController {
   async obtenerVenta(@Param('ventaId') ventaId: number) {
     return this.ventasService.obtenerVenta(ventaId);
   } 
+
+  @Post('dian/solicitar-certificado-prueba')
+    solicitarCertificado(@Body() body: { pin: string; csrBase64: string }) {
+      return this.ventasService.solicitarCertificado(body.pin, body.csrBase64);
+  }
 }

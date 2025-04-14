@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as path from 'path';
 import * as serveStatic from 'serve-static';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,8 @@ async function bootstrap() {
 
   // Configurar CORS
   app.enableCors();
+
+  app.use(cookieParser()); // Esto es importante para leer cookies
 
   // Configurar para servir archivos estáticos desde la carpeta 'uploads'
   app.use('/uploads', serveStatic(path.join(__dirname, '..', 'uploads')));
