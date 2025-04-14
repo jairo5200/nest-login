@@ -85,6 +85,13 @@ export class ProductosController {
     return producto;
   }
 
+  @Get('categoria/:categoriaId')
+  async obtenerProductosPorCategoria(@Param('categoriaId') categoriaId: number) {
+    // Llamar al servicio con el ID de la categoría
+    const productos = await this.productosService.obtenerProductosPorCategoria(categoriaId);
+    return productos;
+  }
+
   @Put(':id')
   @UseInterceptors(
     FileInterceptor('file', {

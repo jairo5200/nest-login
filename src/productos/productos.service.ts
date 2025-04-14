@@ -62,6 +62,7 @@ export class ProductosService {
     where: { id },
     relations: ['categoria'], // Incluir la relación con la categoría
   });
+  
 
   if (!productoEncontrado) {
     throw new HttpException('El producto no existe.', HttpStatus.NOT_FOUND);
@@ -69,6 +70,22 @@ export class ProductosService {
 
   return productoEncontrado;
 }
+
+
+  // Método para obtener productos por categoría
+  async obtenerProductosPorCategoria(categoriaId: number) {
+    // Verificar si la categoría existe
+    const categoria = await this.categoriasService.obtenerCategoriaPorId(categoriaId);
+    if (!categoria) {
+      throw new HttpException('Categoría no válida', HttpStatus.BAD_REQUEST);
+    }
+
+    // Obtener productos de la categoría especificada
+    return this.productoRepository.find({
+      where: { categoria: { id: categoriaId } },  // Filtramos por categoría
+      relations: ['categoria'],  // Incluir la relación con la categoría
+    });
+  }
 
   // Actualizar un producto
   async actualizarProducto(id: number, updateProductoDto: CrearProductoDto, file: Express.Multer.File) {
