@@ -1,14 +1,16 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
 import { CarritoService } from './carrito.service';
 import { ModificarProductoDto } from './dto/agregar-producto.dto';
+import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
 
 @Controller('carrito')
 export class CarritoController {
   constructor(private readonly carritoService: CarritoService) {}
 
-  // 📌 Obtener el carrito de un usuario
-  @Get(':usuarioId')
-  async obtenerCarrito(@Param('usuarioId') usuarioId: number) {
+  @UseGuards(JwtAuthGuard)
+  @Get('mi-carrito')
+  async obtenerCarrito(@Req() req) {
+    const usuarioId = req.user.userId;
     return this.carritoService.obtenerCarrito(usuarioId);
   }
 
