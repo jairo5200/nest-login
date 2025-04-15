@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CrearUsuarioDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -15,4 +15,7 @@ export class CrearUsuarioDto {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  roles?: string[];
 }

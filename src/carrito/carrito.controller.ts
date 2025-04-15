@@ -29,4 +29,12 @@ export class CarritoController {
   ) {
     return this.carritoService.eliminarProducto(modificarProductoDto.carritoId, modificarProductoDto.productoId, modificarProductoDto.cantidad);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('usuario')
+  async obtenerUsuarioLogeado(@Req() req) {
+    const usuarioId = req.user.userId;
+    return await this.carritoService.obtenerUsuarioLogueado(usuarioId);
+  }
+
 }

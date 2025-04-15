@@ -25,14 +25,14 @@ export class Usuario {
   })
   createdAt: Date;
 
-  @Column('text') // Usamos 'text' para almacenar el JSON
-  roles: string; // Este campo almacenará el JSON con los roles
+  @Column('simple-array')
+  roles: string[];
 
-  @OneToOne(() => Perfil)
+  @OneToOne(() => Perfil, { nullable: true })
   @JoinColumn({ name: 'perfil_id' })
   perfil: Perfil;
-
-  @OneToOne(() => Carrito, (carrito) => carrito.usuario)
+  
+  @OneToOne(() => Carrito, (carrito) => carrito.usuario, { nullable: true })
   @JoinColumn({ name: 'carrito_id' })
   carrito: Carrito;
 

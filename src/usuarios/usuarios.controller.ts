@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -19,8 +20,8 @@ import { CrearPerfilDto } from './dto/crear-perfil.dto';
 import { LogearUsuarioDto } from './dto/logear-usuarios.dto';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
 import { Response } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -74,7 +75,8 @@ export class UsuariosController {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    return this.usuariosService.login(user, res);
+  
+    return this.usuariosService.loginConUsuario(user, res);
   }
 
   @Post('logout')
@@ -82,4 +84,5 @@ export class UsuariosController {
     res.clearCookie('jwt');
     return res.status(200).json({ message: 'Sesión cerrada correctamente' });
   }
+
 }

@@ -22,24 +22,40 @@ export class CarritoService {
 
   async obtenerCarrito(usuarioId: number) {
     // Verificar si el usuario existe
-    const usuarioExiste = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
+    const usuario = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
   
-    if (!usuarioExiste) {
+    if (!usuario) {
       throw new NotFoundException(`No existe un usuario con ID ${usuarioId}.`);
     }
   
-    // Buscar carrito del usuario
-    const carrito = await this.carritoRepository.findOne({
+    // Buscar carrito del usuario con relaciones necesarias
+    let carrito = await this.carritoRepository.findOne({
       where: { usuario: { id: usuarioId } },
-      relations: ['productosCarrito', 'productosCarrito.producto'],
+      relations: ['usuario', 'productosCarrito', 'productosCarrito.producto'],
     });
   
+    // Si no existe, crear uno
     if (!carrito) {
-      throw new NotFoundException(`El usuario con ID ${usuarioId} no tiene un carrito.`);
+      carrito = this.carritoRepository.create({ usuario });
+      await this.carritoRepository.save(carrito);
+  
+      await this.usuariosService.asignarCarrito(usuarioId,carrito!.id);
+
+      // Asignar carrito al usuario y guardar
+      usuario.carrito = carrito;
+      await this.usuariosService.actualizarUsuario(usuarioId, usuario); // Asegúrate de que este método use `save()` de TypeORM
+    }
+    if (carrito == null) {
+      throw new NotFoundException(`No existe un carrito para el usuario con ID ${usuarioId}.`);
     }
   
-    return carrito;
+    // Retornar carrito incluyendo solo el ID del usuario
+    return {
+      ...carrito,
+      usuario: { id: carrito.usuario.id },
+    };
   }
+  
 
   // 🔹 Agregar producto al carrito
   async agregarProducto(carritoId: number, productoId: number, cantidad: number): Promise<ProductoCarrito> {
@@ -96,5 +112,10 @@ export class CarritoService {
     await this.productoCarritoRepository.delete({ carrito: { id: carrito.id } });
 
     await this.carritoRepository.save(carrito);
+  }
+
+  async obtenerUsuarioLogueado(usuarioId: number){
+    const usuario = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
+    return usuario;
   }
 }

@@ -27,12 +27,15 @@ export class UsuariosService {
     if (usuarioEncontrado) {
       return new HttpException('El usuario ya existe.', HttpStatus.CONFLICT);
     }
+
     const hashedPassword = await bcrypt.hash(usuario.password, 10);
+
     const newUser = this.usuarioRepository.create({
       email: usuario.email,
       password: hashedPassword,
-      roles: JSON.stringify('user'),
+      roles: usuario.roles
     });
+
     return this.usuarioRepository.save(newUser);
   }
 
@@ -127,50 +130,45 @@ export class UsuariosService {
   }
 
   // Autenticación de usuario
-  async validarUsuario(usuario: CrearUsuarioDto) {
+  async validarUsuario(usuario: CrearUsuarioDto): Promise<Partial<Usuario> | null> {
     const user = await this.usuarioRepository.findOne({
       where: { email: usuario.email },
     });
-    if (!user) {
-      return null;
-    }
-
+  
+    if (!user) return null;
+  
     const isMatch = await bcrypt.compare(usuario.password, user.password);
-    if (!isMatch) {
-      return null;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user; // Excluir la contraseña
-    return result;
+    if (!isMatch) return null;
+  
+    const { password: _, ...result } = user;
+    return result; // result ya no tiene password
   }
 
-  async login(usuario: validarUsuarioDto, res: Response) {
-    const usuarioEncontrado = await this.usuarioRepository.findOne({
-      where: { email: usuario.email },
-    });
-  
-    if (!usuarioEncontrado) {
-      throw new UnauthorizedException('Credenciales incorrectas');
-    }
-  
+  async loginConUsuario(user: Partial<Usuario>, res: Response) {
     const payload = {
-      email: usuario.email,
-      sub: usuarioEncontrado.id,
-      roles: usuario.roles,
+      sub: user.id,
+      email: user.email,
+      roles: user.roles,
     };
+  
+    console.log('Payload al hacer login:', payload); // aquí debe aparecer el id bien
   
     const token = this.jwtService.sign(payload);
   
-    // 🔹 Establecer la cookie en la respuesta
     res.cookie('jwt', token, {
-      httpOnly: true, // Seguridad: evita acceso desde JavaScript en el frontend
-      secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
-      sameSite: 'strict', // Evita ataques CSRF
-      maxAge: 24 * 60 * 60 * 1000, // Expira en 1 día
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000,
       path: '/',
     });
   
     return res.send({ message: 'Login exitoso' });
+  }
+
+  async asignarCarrito(usuarioId: number, carritoId: number): Promise<void> {
+    await this.usuarioRepository.update(usuarioId, {
+      carrito: { id: carritoId },
+    });
   }
 }

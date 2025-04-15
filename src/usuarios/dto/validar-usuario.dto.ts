@@ -4,6 +4,6 @@ export class validarUsuarioDto {
   id: number;
   email: string;
   createdAt: Date;
-  roles: string;
+  roles: string[];
   perfil: Perfil;
 }
