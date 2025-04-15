@@ -8,7 +8,7 @@ export class CarritoController {
   constructor(private readonly carritoService: CarritoService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('mi-carrito')
+  @Get('/')
   async obtenerCarrito(@Req() req) {
     const usuarioId = req.user.userId;
     return this.carritoService.obtenerCarrito(usuarioId);
