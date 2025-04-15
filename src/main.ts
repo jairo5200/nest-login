@@ -18,7 +18,10 @@ async function bootstrap() {
   );
 
   // Configurar CORS
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:5173', // Origen exacto del frontend
+    credentials: true,                // Permite el envío de cookies
+  });
 
   app.use(cookieParser()); // Esto es importante para leer cookies
 
