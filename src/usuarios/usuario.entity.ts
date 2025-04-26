@@ -33,9 +33,8 @@ export class Usuario {
   @JoinColumn({ name: 'perfil_id' })
   perfil: Perfil;
   
-  @OneToOne(() => Carrito, (carrito) => carrito.usuario, { nullable: true })
-  @JoinColumn({ name: 'carrito_id' })
-  carrito: Carrito;
+  @OneToMany(() => Carrito, (carrito) => carrito.usuario)
+  carritos: Carrito[];
 
   @OneToMany(() => Venta, (venta) => venta.usuario)
   ventas: Venta[];

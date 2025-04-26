@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Usuario } from 'src/usuarios/usuario.entity';
 import { Producto } from 'src/productos/producto.entity';
+import { Carrito } from 'src/carrito/carrito.entity';
 
 @Entity({ name: 'tiendas' })
 export class Tienda {
@@ -18,4 +19,8 @@ export class Tienda {
   // Relación 1:N con productos
   @OneToMany(() => Producto, (producto) => producto.tienda)
   productos: Producto[];
+
+    // Relación de uno a muchos con los carritos
+    @OneToMany(() => Carrito, (carrito) => carrito.tienda)
+    carritos: Carrito[];
 }

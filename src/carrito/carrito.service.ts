@@ -5,6 +5,7 @@ import { Carrito } from './carrito.entity';
 import { ProductoCarrito } from './producto_carrito.entity';
 import { ProductosService } from 'src/productos/productos.service'; // Importamos ProductosService
 import { UsuariosService } from 'src/usuarios/usuarios.service';
+import { TiendasService } from 'src/tiendas/tiendas.service';
 
 @Injectable()
 export class CarritoService {
@@ -18,9 +19,11 @@ export class CarritoService {
     private readonly productosService: ProductosService,
     
     private readonly usuariosService: UsuariosService,
+
+    private readonly tiendasService: TiendasService,
   ) {}
 
-  async obtenerCarrito(usuarioId: number) {
+  async obtenerCarrito(usuarioId: number, tiendaId: number) {
     // Verificar si el usuario existe
     const usuario = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
   
@@ -28,33 +31,49 @@ export class CarritoService {
       throw new NotFoundException(`No existe un usuario con ID ${usuarioId}.`);
     }
   
-    // Buscar carrito del usuario con relaciones necesarias
+    // Buscar carrito del usuario asociado a la tienda
     let carrito = await this.carritoRepository.findOne({
-      where: { usuario: { id: usuarioId } },
-      relations: ['usuario', 'productosCarrito', 'productosCarrito.producto'],
+      where: { usuario: { id: usuarioId }, tienda: { id: tiendaId } },
+      relations: ['usuario', 'productosCarrito', 'productosCarrito.producto', 'tienda'],
     });
   
-    // Si no existe, crear uno
+    // Si no existe, crear uno para la tienda específica
     if (!carrito) {
-      carrito = this.carritoRepository.create({ usuario });
+      // Obtener la tienda a la cual debe pertenecer el carrito
+      const tienda = await this.tiendasService.obtenerTiendaPorId(tiendaId);
+  
+      if (!tienda) {
+        throw new NotFoundException(`No existe una tienda con ID ${tiendaId}.`);
+      }
+  
+      // Crear carrito y asignarle el usuario y la tienda
+      carrito = this.carritoRepository.create({
+        usuario,
+        tienda,
+      });
+  
       await this.carritoRepository.save(carrito);
   
-      await this.usuariosService.asignarCarrito(usuarioId,carrito!.id);
-
-      // Asignar carrito al usuario y guardar
-      usuario.carrito = carrito;
+      // Agregar el carrito al arreglo de carritos del usuario
+      usuario.carritos = [...usuario.carritos, carrito]; // Asegurándonos de que es un arreglo
+  
+      // Guardar usuario con el carrito asignado
       await this.usuariosService.actualizarUsuario(usuarioId, usuario); // Asegúrate de que este método use `save()` de TypeORM
     }
-    if (carrito == null) {
-      throw new NotFoundException(`No existe un carrito para el usuario con ID ${usuarioId}.`);
+  
+    // Si no se encuentra el carrito
+    if (!carrito) {
+      throw new NotFoundException(`No existe un carrito para el usuario con ID ${usuarioId} y tienda ${tiendaId}.`);
     }
   
-    // Retornar carrito incluyendo solo el ID del usuario
+    // Retornar carrito incluyendo solo el ID del usuario y tienda
     return {
       ...carrito,
       usuario: { id: carrito.usuario.id },
+      tienda: { id: carrito.tienda.id }, // Incluimos el ID de la tienda también
     };
   }
+  
   
 
   // 🔹 Agregar producto al carrito
