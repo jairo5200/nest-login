@@ -10,33 +10,53 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { validarUsuarioDto } from './dto/validar-usuario.dto';
 import { Response } from 'express';
+import { TiendasService } from 'src/tiendas/tiendas.service';
 
 @Injectable()
 export class UsuariosService {
   constructor(
     @InjectRepository(Usuario) private usuarioRepository: Repository<Usuario>,
     @InjectRepository(Perfil) private perfilRepository: Repository<Perfil>,
+    private readonly tiendaService: TiendasService,
     private jwtService: JwtService,
   ) {}
 
-  // Registro de usuario (se podría modificar para aceptar más campos)
+  // Registro de usuario
   async registrar(usuario: CrearUsuarioDto) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
       where: { email: usuario.email },
     });
+    
     if (usuarioEncontrado) {
       return new HttpException('El usuario ya existe.', HttpStatus.CONFLICT);
     }
 
+    // Hasheamos la contraseña
     const hashedPassword = await bcrypt.hash(usuario.password, 10);
 
+    // Creamos el nuevo usuario
     const newUser = this.usuarioRepository.create({
       email: usuario.email,
       password: hashedPassword,
-      roles: usuario.roles
+      roles: usuario.roles,
     });
 
-    return this.usuarioRepository.save(newUser);
+    // Guardamos al usuario
+    const usuarioGuardado = await this.usuarioRepository.save(newUser);
+  
+    if(usuario.roles == null){
+      throw new HttpException('el usuario no tiene roles', HttpStatus.NOT_FOUND);
+    }
+    // Si el rol del usuario es admin, se crea una tienda asociada
+    if (usuario.roles.includes('admin')) {
+      await this.tiendaService.crearTienda({
+        nombre: `${usuario.email} Tienda`, // Nombre basado en el correo del admin
+        descripcion: "descripcion por defecto de la tienda",
+        usuarioId: usuarioGuardado.id, // Asociamos la tienda con el ID del usuario creado
+      });
+    }
+
+    return usuarioGuardado;
   }
 
   async obtenerUsuarios() {

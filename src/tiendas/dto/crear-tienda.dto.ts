@@ -10,4 +10,7 @@ export class CrearTiendaDto {
   @IsNotEmpty()
   @MaxLength(1000)
   descripcion: string;
+
+  @IsNotEmpty()
+  usuarioId: number; // Nuevo campo para asociar la tienda con el usuario
 }
