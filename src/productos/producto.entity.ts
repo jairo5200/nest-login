@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColum
 import { Categoria } from 'src/categorias/categoria.entity';
 import { ProductoCarrito } from 'src/carrito/producto_carrito.entity';
 import { ProductoImagen } from 'src/producto-imagenes/producto-imagen.entity';
+import { Tienda } from 'src/tiendas/tienda.entity';
 
 @Entity({ name: 'productos' })
 export class Producto {
@@ -26,6 +27,10 @@ export class Producto {
   @ManyToOne(() => Categoria, (categoria) => categoria.productos, { nullable: false })
   @JoinColumn({ name: 'categoria_id' })
   categoria: Categoria;
+
+  @ManyToOne(() => Tienda, (tienda) => tienda.productos, { nullable: false })
+  @JoinColumn({ name: 'tienda_id' })
+  tienda: Tienda;
 
   @OneToMany(() => ProductoCarrito, (productoCarrito) => productoCarrito.producto)
   productosCarrito: ProductoCarrito[];

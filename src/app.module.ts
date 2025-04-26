@@ -10,6 +10,7 @@ import { CarritoModule } from './carrito/carrito.module';
 import { VentasModule } from './ventas/ventas.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ProductoImagenesModule } from './producto-imagenes/producto-imagenes.module';
+import { TiendasModule } from './tiendas/tiendas.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ProductoImagenesModule } from './producto-imagenes/producto-imagenes.mo
     CarritoModule,
     VentasModule,
     ProductoImagenesModule,
+    TiendasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

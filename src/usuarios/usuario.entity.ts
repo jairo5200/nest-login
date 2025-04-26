@@ -9,6 +9,7 @@ import {
 import { Perfil } from './perfil.entity';
 import { Carrito } from 'src/carrito/carrito.entity';
 import { Venta } from 'src/ventas/venta.entity';
+import { Tienda } from 'src/tiendas/tienda.entity';
 
 @Entity({ name: 'usuarios' })
 export class Usuario {
@@ -38,5 +39,8 @@ export class Usuario {
 
   @OneToMany(() => Venta, (venta) => venta.usuario)
   ventas: Venta[];
+
+  @OneToOne(() => Tienda, (tienda) => tienda.usuario, { nullable: true })
+  tienda: Tienda;
 }
 
