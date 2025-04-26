@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { Categoria } from 'src/categorias/categoria.entity';
 import { ProductoCarrito } from 'src/carrito/producto_carrito.entity';
+import { ProductoImagen } from 'src/producto-imagenes/producto-imagen.entity';
 
 @Entity({ name: 'productos' })
 export class Producto {
@@ -19,7 +20,7 @@ export class Producto {
   @Column({ type: 'int', unsigned: true })
   cantidad: number;
 
-  @Column({ nullable: true, length: 500 })
+  @Column({ nullable: true })
   imagenUrl: string;
 
   @ManyToOne(() => Categoria, (categoria) => categoria.productos, { nullable: false })
@@ -28,5 +29,8 @@ export class Producto {
 
   @OneToMany(() => ProductoCarrito, (productoCarrito) => productoCarrito.producto)
   productosCarrito: ProductoCarrito[];
+
+  @OneToMany(() => ProductoImagen, (imagen) => imagen.producto, { cascade: true })
+  imagenes: ProductoImagen[];
 }
 

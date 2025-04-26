@@ -11,7 +11,6 @@ export class VentasController {
   @UseGuards(JwtAuthGuard)  // Protege la ruta con JWT
   async realizarVenta(@Request() req) {
     const usuarioId = req.user.userId;  // Obtiene el usuario autenticado
-    console.log(usuarioId);
     return this.ventasService.realizarVenta(usuarioId);
   }
 
