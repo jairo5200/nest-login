@@ -13,14 +13,19 @@ export class TiendasService {
     private readonly tiendaRepository: Repository<Tienda>,
   ) {}
 
-  // Crear una nueva tienda
-  async crearTienda(dto: CrearTiendaDto): Promise<Tienda> {
-    const nuevaTienda = this.tiendaRepository.create(dto);
-    return await this.tiendaRepository.save(nuevaTienda);
+  async crearTienda(data: CrearTiendaDto) {
+    const { nombre, usuarioId } = data;
+  
+    const tienda = this.tiendaRepository.create({
+      nombre,
+      usuario: { id: usuarioId }, // 👈 Aquí pasamos el usuario como objeto con id
+    });
+  
+    return this.tiendaRepository.save(tienda);
   }
 
   // Obtener todas las tiendas
-  async obtenerTiendas(): Promise<Tienda[]> {
+  async obtenerTiendas() {
     return await this.tiendaRepository.find();
   }
 
@@ -30,6 +35,22 @@ export class TiendasService {
 
     if (!tienda) {
       throw new NotFoundException(`La tienda con id ${id} no existe.`);
+    }
+
+    return tienda;
+  }
+
+  // Obtener una tienda por el ID del usuario dueño
+  async obtenerTiendaPorIdUsuario(id: number) {
+    const tienda = await this.tiendaRepository.findOne({
+      where: { 
+        usuario: { id } // <-- Buscamos por la relación usuario
+      },
+      relations: ['usuario'], // Opcional, para traer también los datos del usuario
+    });
+
+    if (!tienda) {
+      throw new NotFoundException(`La tienda de ese usuario no existe.`);
     }
 
     return tienda;

@@ -16,7 +16,7 @@ export class TiendasController {
 
   // Obtener todas las tiendas
   @Get()
-  async obtenerTiendas(): Promise<Tienda[]> {
+  async obtenerTiendas() {
     return await this.tiendasService.obtenerTiendas();
   }
 
@@ -25,6 +25,8 @@ export class TiendasController {
   async obtenerTienda(@Param('id') id: number): Promise<Tienda> {
     return await this.tiendasService.obtenerTiendaPorId(id);
   }
+
+  
 
   // Actualizar una tienda
   @Put(':id')

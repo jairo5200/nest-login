@@ -51,7 +51,6 @@ export class UsuariosService {
     if (usuario.roles.includes('admin')) {
       await this.tiendaService.crearTienda({
         nombre: `${usuario.email} Tienda`, // Nombre basado en el correo del admin
-        descripcion: "descripcion por defecto de la tienda",
         usuarioId: usuarioGuardado.id, // Asociamos la tienda con el ID del usuario creado
       });
     }

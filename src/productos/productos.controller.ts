@@ -12,6 +12,8 @@ import {
   HttpException,
   HttpStatus,
   HttpCode,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { ProductosService } from './productos.service';
@@ -19,6 +21,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import * as multer from 'multer';
 import { unlink, unlinkSync } from 'fs';
+import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
 
 
 @Controller('productos')
@@ -38,17 +41,23 @@ export class ProductosController {
       }),
     }),
   )
+  @UseGuards(JwtAuthGuard)
   async crearProducto(
     @Body() producto: CrearProductoDto,
     @UploadedFile() file: Express.Multer.File, // Aquí se obtiene la imagen subida
+    @Req() req, // <-- Agregamos esto para acceder al usuario
   ) {
     try {
+
+      const user = req.user as any; // Aquí recibimos el usuario (deberías tenerlo si usas AuthGuard y Passport)
+
       const imagenUrl = file ? file.filename : "";
 
       // Crear el nuevo producto
       const nuevoProducto = await this.productosService.crearProducto({
         ...producto,
         imagenUrl,
+        userId: user.id, // Le pasamos el id de quien creó el producto
       });
 
       return nuevoProducto;
@@ -134,6 +143,18 @@ export class ProductosController {
   async eliminarProducto(@Param('id') id: number) {
     const resultado = await this.productosService.eliminarProducto(id);
     return resultado;
+  }
+
+
+  // Endpoint para listar los productos por tienda
+  @Get('tienda/:tiendaId')
+  async obtenerProductosPorTienda(@Param('tiendaId') tiendaId: number) {
+    try {
+      const productos = await this.productosService.obtenerProductosPorTienda(tiendaId);
+      return productos;
+    } catch (error) {
+      throw new NotFoundException('No se encontraron productos para esta tienda.');
+    }
   }
 
 }

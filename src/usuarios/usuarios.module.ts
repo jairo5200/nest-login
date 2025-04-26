@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './roles.guard';
 import { ConfigService } from '@nestjs/config'; // Importar ConfigService
+import { TiendasModule } from 'src/tiendas/tiendas.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigService } from '@nestjs/config'; // Importar ConfigService
       }),
       inject: [ConfigService], // Inyectamos ConfigService para acceder a las variables de entorno
     }),
+    TiendasModule,
   ],
   controllers: [UsuariosController],
   providers: [UsuariosService, JwtStrategy, RolesGuard],

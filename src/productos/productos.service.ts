@@ -5,6 +5,7 @@ import { Not, Repository } from 'typeorm';
 import { CrearProductoDto } from './dto/crear-producto.dto';
 import { CategoriasService } from 'src/categorias/categorias.service';
 import { unlink, unlinkSync } from 'fs';
+import { TiendasService } from 'src/tiendas/tiendas.service';
 
 @Injectable()
 export class ProductosService {
@@ -12,22 +13,22 @@ export class ProductosService {
     @InjectRepository(Producto)
     private productoRepository: Repository<Producto>,
     private categoriasService: CategoriasService,
+    private tiendaService: TiendasService,
   ) {}
 
-  // Crear un nuevo producto
-  async crearProducto(productoDto: CrearProductoDto) {
+  async crearProducto(productoDto: CrearProductoDto & { userId: number }) {
     // Verificar si el producto ya existe
     const productoEncontrado = await this.productoRepository.findOne({
       where: { nombre: productoDto.nombre },
     });
-
+  
     if (productoEncontrado) {
       throw new HttpException(
-        'El nombre del producto ya esta en uso',
+        'El nombre del producto ya está en uso',
         HttpStatus.CONFLICT,
       );
     }
-
+  
     // Buscar la categoría correspondiente
     const categoria = await this.categoriasService.obtenerCategoriaPorId(
       productoDto.categoria_id,
@@ -35,18 +36,29 @@ export class ProductosService {
     if (!categoria) {
       throw new HttpException('Categoría no válida', HttpStatus.BAD_REQUEST);
     }
-
+  
     // Si no se encuentra la categoría, lanzamos una excepción para evitar crear el producto
     if (categoria instanceof HttpException) {
       throw categoria; // Lanzamos la excepción que fue retornada desde el servicio de categorías
     }
-
-    // Crear el nuevo producto y asignar la categoría
+  
+    // Buscar la tienda del usuario
+    const tienda = await this.tiendaService.obtenerTiendaPorIdUsuario(productoDto.userId);
+  
+    if (!tienda) {
+      throw new HttpException(
+        'El usuario no tiene una tienda asociada.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  
+    // Crear el nuevo producto y asignar categoría y tienda
     const nuevoProducto = this.productoRepository.create({
       ...productoDto, // Desestructuramos el DTO
-      categoria, // Asignamos la categoría encontrada
+      categoria,      // Asignamos la categoría encontrada
+      tienda,         // Asignamos la tienda encontrada
     });
-
+  
     // Guardar el producto en la base de datos
     return this.productoRepository.save(nuevoProducto);
   }
@@ -237,6 +249,23 @@ export class ProductosService {
     // 🔹 Reducir el stock y guardar el cambio
     producto.cantidad -= cantidad;
     return await this.productoRepository.save(producto);
+  }
+
+  // Método para listar productos por tienda
+  async obtenerProductosPorTienda(tiendaId: number): Promise<Producto[]> {
+    // Primero verificamos si la tienda existe
+    const tienda = await this.tiendaService.obtenerTiendaPorId(tiendaId);
+
+    if (!tienda) {
+      throw new Error('Tienda no encontrada');
+    }
+
+    // Luego buscamos los productos de esa tienda
+    return this.productoRepository.find({
+      where: {
+        tienda: { id: tiendaId },  // Filtramos por el id de la tienda (relación con Tienda)
+      },
+    });
   }
 }
 
