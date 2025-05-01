@@ -29,7 +29,7 @@ export class Tienda {
   @OneToMany(() => Producto, (producto) => producto.tienda)
   productos: Producto[];
 
-    // Relación de uno a muchos con los carritos
-    @OneToMany(() => Carrito, (carrito) => carrito.tienda)
-    carritos: Carrito[];
+  // Relación de uno a muchos con los carritos
+  @OneToMany(() => Carrito, (carrito) => carrito.tienda)
+  carritos: Carrito[];
 }

@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TiendasService } from './tiendas.service';
 import { CrearTiendaDto } from './dto/crear-tienda.dto';
 import { Tienda } from './tienda.entity';
 import { ActualizarTiendaDto } from './dto/actualizar-tienda.dto';
 import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
+import { extname } from 'path';
 
 @Controller('tiendas')
 export class TiendasController {
@@ -37,18 +40,42 @@ export class TiendasController {
 
   // Actualizar una tienda
   @Put(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'imagenPortada', maxCount: 1 },
+        { name: 'imagenLogo', maxCount: 1 },
+      ],
+      {
+        storage: multer.diskStorage({
+          destination: './uploads',
+          filename: (req, file, cb) => {
+            const filename = `${Date.now()}${extname(file.originalname)}`;
+            cb(null, filename);
+          },
+        }),
+      },
+    ),
+  )
   async actualizarTienda(
     @Param('id') id: number,
     @Body() dto: ActualizarTiendaDto,
-  ): Promise<Tienda> {
-    return await this.tiendasService.actualizarTienda(id, dto);
+    @UploadedFiles()
+    files: {
+      imagenPortada?: Express.Multer.File[];
+      imagenLogo?: Express.Multer.File[];
+    },
+  ) {
+    if (files?.imagenPortada?.[0]) {
+      dto.imagenPortada = files.imagenPortada[0].filename;
+    }
+    if (files?.imagenLogo?.[0]) {
+      dto.imagenLogo = files.imagenLogo[0].filename;
+    }
+
+    return this.tiendasService.actualizarTienda(+id, dto);
   }
 
-  // Eliminar una tienda
-  @Delete(':id')
-  async eliminarTienda(@Param('id') id: number): Promise<void> {
-    return await this.tiendasService.eliminarTienda(id);
-  }
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
