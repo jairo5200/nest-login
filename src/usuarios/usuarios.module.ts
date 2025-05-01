@@ -27,6 +27,6 @@ import { TiendasModule } from 'src/tiendas/tiendas.module';
   ],
   controllers: [UsuariosController],
   providers: [UsuariosService, JwtStrategy, RolesGuard],
-  exports: [UsuariosService],
+  exports: [UsuariosService, JwtStrategy, PassportModule],
 })
 export class UsuariosModule {}

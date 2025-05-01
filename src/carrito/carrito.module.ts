@@ -6,12 +6,14 @@ import { Carrito } from './carrito.entity';
 import { ProductosModule } from 'src/productos/productos.module';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { ProductoCarrito } from './producto_carrito.entity';
+import { TiendasModule } from 'src/tiendas/tiendas.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Carrito, ProductoCarrito]),  // Solo importamos Carrito, porque el resto lo gestionan los módulos importados
     ProductosModule,  // Módulo de productos
     UsuariosModule,   // Módulo de usuarios
+    TiendasModule,
   ],
   controllers: [CarritoController],
   providers: [CarritoService],

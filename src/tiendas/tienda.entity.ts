@@ -11,6 +11,15 @@ export class Tienda {
   @Column({ unique: true, length: 255 })
   nombre: string;
 
+  @Column({ type: 'text', nullable: true })
+  descripcion: string;
+
+  @Column({ nullable: true })
+  imagenPortada: string;
+
+  @Column({ nullable: true })
+  imagenLogo: string;
+
   // Relación 1:1 con Usuario (solo admins pueden tener una tienda)
   @OneToOne(() => Usuario, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'usuario_id' })

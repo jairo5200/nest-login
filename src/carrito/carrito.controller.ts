@@ -9,9 +9,9 @@ export class CarritoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  async obtenerCarrito(@Req() req) {
+  async obtenerCarrito(@Req() req,@Body() idTienda: number) {
     const usuarioId = req.user.userId;
-    return this.carritoService.obtenerCarrito(usuarioId);
+    return this.carritoService.obtenerCarrito(usuarioId,idTienda);
   }
 
   // 📌 Agregar producto al carrito
@@ -35,6 +35,13 @@ export class CarritoController {
   async obtenerUsuarioLogeado(@Req() req) {
     const usuarioId = req.user.userId;
     return await this.carritoService.obtenerUsuarioLogueado(usuarioId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('tienda')
+  async obtenerTiendaUsuarioLogeado(@Req() req) {
+    const usuarioId = req.user.userId;
+    return this.carritoService.obtenerTiendaPorIdUsuario(usuarioId);
   }
 
 }

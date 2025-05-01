@@ -137,4 +137,9 @@ export class CarritoService {
     const usuario = await this.usuariosService.obtenerUsuarioPorId(usuarioId);
     return usuario;
   }
+
+    async obtenerTiendaPorIdUsuario(userId: number) {
+      const tienda = await this.tiendasService.obtenerTiendaPorIdUsuario(userId);
+      return tienda;
+    }
 }

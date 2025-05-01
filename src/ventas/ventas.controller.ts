@@ -9,9 +9,9 @@ export class VentasController {
   // 📌 Registrar una venta a partir del carrito del usuario
   @Post('realizar')
   @UseGuards(JwtAuthGuard)  // Protege la ruta con JWT
-  async realizarVenta(@Request() req) {
+  async realizarVenta(@Request() req, @Body() tiendaId: number) {
     const usuarioId = req.user.userId;  // Obtiene el usuario autenticado
-    return this.ventasService.realizarVenta(usuarioId);
+    return this.ventasService.realizarVenta(usuarioId,tiendaId);
   }
 
   // 📌 Obtener todas las ventas de un usuario

@@ -7,12 +7,14 @@ import { ProductoVenta } from './producto_venta.entity';
 import { CarritoModule } from 'src/carrito/carrito.module';
 import { ProductosModule } from 'src/productos/productos.module';
 import { HttpModule,  } from '@nestjs/axios';
+import { TiendasModule } from 'src/tiendas/tiendas.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Venta, ProductoVenta]), 
     CarritoModule, 
     ProductosModule,
     HttpModule,
+    TiendasModule,
   ],
   controllers: [VentasController],
   providers: [VentasService],

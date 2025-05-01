@@ -50,6 +50,7 @@ export class ProductosController {
     try {
 
       const user = req.user as any; // Aquí recibimos el usuario (deberías tenerlo si usas AuthGuard y Passport)
+      console.log(user.userId); // Para depuración
 
       const imagenUrl = file ? file.filename : "";
 
@@ -57,7 +58,7 @@ export class ProductosController {
       const nuevoProducto = await this.productosService.crearProducto({
         ...producto,
         imagenUrl,
-        userId: user.id, // Le pasamos el id de quien creó el producto
+        userId: user.userId, // Le pasamos el id de quien creó el producto
       });
 
       return nuevoProducto;
@@ -83,6 +84,15 @@ export class ProductosController {
     const productos = await this.productosService.obtenerProductos();
     return productos;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('mis-productos')
+  async obtenerMisProductos(@Req() req) {
+    const userId = req.user.userId as any; // Aquí recibimos el usuario (deberías tenerlo si usas AuthGuard y Passport)
+    const productos = await this.productosService.obtenerMisProductos(userId); // Pasamos el id del usuario
+    return productos;
+  }
+
 
   // Obtener un producto por su ID
   @Get(':id')

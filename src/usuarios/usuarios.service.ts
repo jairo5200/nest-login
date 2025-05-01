@@ -69,6 +69,7 @@ export class UsuariosService {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
       where: { id },
       select: ['id', 'email', 'roles'],
+      relations: ['tienda'],
     });
     if (!usuarioEncontrado) {
       throw new HttpException('El usuario no existe.', HttpStatus.NOT_FOUND);
@@ -185,11 +186,6 @@ export class UsuariosService {
     return res.send({ message: 'Login exitoso' });
   }
 
-  async asignarCarrito(usuarioId: number, carritoId: number): Promise<void> {
-    await this.usuarioRepository.update(usuarioId, {
-      carrito: { id: carritoId },
-    });
-  }
 
   async obtenerPerfil(usuarioId: number) {
     // Buscar al usuario por su id y cargar la relación de tienda

@@ -40,21 +40,19 @@ export class TiendasService {
     return tienda;
   }
 
-  // Obtener una tienda por el ID del usuario dueño
-  async obtenerTiendaPorIdUsuario(id: number) {
+  async obtenerTiendaPorIdUsuario(userId: number): Promise<Tienda> {
     const tienda = await this.tiendaRepository.findOne({
-      where: { 
-        usuario: { id } // <-- Buscamos por la relación usuario
-      },
-      relations: ['usuario'], // Opcional, para traer también los datos del usuario
+      where: { usuario: { id: userId } }, // Relacionamos la tienda con el usuario mediante su id
+      relations: ['usuario'], // Asegúrate de cargar la relación con el usuario
     });
-
+  
     if (!tienda) {
-      throw new NotFoundException(`La tienda de ese usuario no existe.`);
+      throw new NotFoundException(`La tienda para el usuario con id ${userId} no existe.`);
     }
-
+  
     return tienda;
   }
+
 
   // Actualizar una tienda
   async actualizarTienda(id: number, dto: ActualizarTiendaDto): Promise<Tienda> {

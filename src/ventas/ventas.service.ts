@@ -7,6 +7,7 @@ import { CarritoService } from '../carrito/carrito.service';
 import { ProductosService } from 'src/productos/productos.service';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { TiendasService } from 'src/tiendas/tiendas.service';
 
 
 
@@ -18,12 +19,13 @@ export class VentasService {
     private readonly carritoService: CarritoService,
     private readonly productosService: ProductosService,
     private readonly httpService: HttpService,
+    private readonly tiendasService : TiendasService,
   ) {}
 
   // 📌 Realizar una venta desde el carrito
-  async realizarVenta(usuarioId: number): Promise<Venta> {
+  async realizarVenta(usuarioId: number, tiendaId): Promise<Venta> {
     // 🔹 Obtener el carrito del usuario
-    const carrito = await this.carritoService.obtenerCarrito(usuarioId);
+    const carrito = await this.carritoService.obtenerCarrito(usuarioId,tiendaId);
 
     if (!carrito || carrito.productosCarrito.length === 0) {
       throw new BadRequestException('El carrito está vacío');

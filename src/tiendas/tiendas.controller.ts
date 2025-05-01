@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { TiendasService } from './tiendas.service';
 import { CrearTiendaDto } from './dto/crear-tienda.dto';
 import { Tienda } from './tienda.entity';
 import { ActualizarTiendaDto } from './dto/actualizar-tienda.dto';
+import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
 
 @Controller('tiendas')
 export class TiendasController {
@@ -18,7 +19,7 @@ export class TiendasController {
   @Get('usuario/:id')
   async obtenerTiendaPorUsuario(@Param('id') id: number): Promise<Tienda> {
   return await this.tiendasService.obtenerTiendaPorIdUsuario(id);
-}
+  } 
 
   // Obtener todas las tiendas
   @Get()
@@ -47,5 +48,12 @@ export class TiendasController {
   @Delete(':id')
   async eliminarTienda(@Param('id') id: number): Promise<void> {
     return await this.tiendasService.eliminarTienda(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  async obtenerTiendaUsuarioLogeado(@Req() req) {
+    const usuarioId = req.user.userId;
+    return this.tiendasService.obtenerTiendaPorIdUsuario(usuarioId);
   }
 }

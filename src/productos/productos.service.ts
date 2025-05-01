@@ -21,6 +21,7 @@ export class ProductosService {
     const productoEncontrado = await this.productoRepository.findOne({
       where: { nombre: productoDto.nombre },
     });
+    console.log(productoDto.userId);
   
     if (productoEncontrado) {
       throw new HttpException(
@@ -265,6 +266,23 @@ export class ProductosService {
       where: {
         tienda: { id: tiendaId },  // Filtramos por el id de la tienda (relación con Tienda)
       },
+    });
+  }
+
+  // Método para obtener productos de una tienda por su ID
+  async obtenerMisProductos(userId: number) {
+    // Verificar si el usuario tiene una tienda asociada
+    const tienda = await this.tiendaService.obtenerTiendaPorIdUsuario(userId);
+    if (!tienda) {
+      throw new HttpException(
+        'El usuario no tiene una tienda asociada.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Obtener los productos de la tienda del usuario
+    return this.productoRepository.find({
+      where: { tienda: { id: tienda.id } },  // Filtramos por el id de la tienda
     });
   }
 }
