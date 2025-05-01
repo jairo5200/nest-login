@@ -63,7 +63,7 @@ export class UsuariosService {
       select: ['id', 'email', 'roles'],
     });
     return usuarios;
-  }
+  } 
 
   async obtenerUsuarioPorId(id: number) {
     const usuarioEncontrado = await this.usuarioRepository.findOne({
@@ -189,5 +189,24 @@ export class UsuariosService {
     await this.usuarioRepository.update(usuarioId, {
       carrito: { id: carritoId },
     });
+  }
+
+  async obtenerPerfil(usuarioId: number) {
+    // Buscar al usuario por su id y cargar la relación de tienda
+    const usuario = await this.usuarioRepository.findOne({
+      where: { id: usuarioId },
+      relations: ['tienda'], // Cargar la tienda asociada
+    });
+  
+    if (!usuario) {
+      return null; // Si no existe el usuario, retornar null
+    }
+  
+    return {
+      id: usuario.id,
+      email: usuario.email,
+      roles: usuario.roles,
+      tienda_id: usuario.tienda?.id ?? null, // Incluir tienda_id si existe
+    };
   }
 }

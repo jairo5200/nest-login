@@ -14,6 +14,12 @@ export class TiendasController {
     return await this.tiendasService.crearTienda(dto);
   }
 
+  // Obtener una tienda por el ID del usuario dueño
+  @Get('usuario/:id')
+  async obtenerTiendaPorUsuario(@Param('id') id: number): Promise<Tienda> {
+  return await this.tiendasService.obtenerTiendaPorIdUsuario(id);
+}
+
   // Obtener todas las tiendas
   @Get()
   async obtenerTiendas() {
