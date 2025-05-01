@@ -84,5 +84,22 @@ export class UsuariosController {
     res.clearCookie('jwt');
     return res.status(200).json({ message: 'Sesión cerrada correctamente' });
   }
+  // Método para obtener la información del usuario logueado
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async obtenerPerfil(@Req() req: any) {
+    const usuarioId = parseInt(req.user.userId, 10);
+    if (isNaN(usuarioId)) {
+      throw new HttpException('ID del usuario inválido', HttpStatus.BAD_REQUEST);
+    }
+  
+    const usuario = await this.usuariosService.obtenerPerfil(usuarioId);
+  
+    if (!usuario) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+  
+    return usuario;
+  }
 
 }
