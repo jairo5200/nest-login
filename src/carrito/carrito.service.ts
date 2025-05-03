@@ -30,7 +30,7 @@ export class CarritoService {
         usuario: { id: usuarioId },
         tienda: { id: tiendaId },
       },
-      relations: ['usuario', 'tienda', 'productosCarrito'],
+      relations: ['usuario', 'tienda', 'productosCarrito','productosCarrito.producto'],
     });
   
     // Si no existe, crearlo
@@ -53,6 +53,17 @@ export class CarritoService {
       estado: carrito.estado,
       usuario: { id: usuarioId },
       tienda: { id: tiendaId },
+      productosCarrito: carrito.productosCarrito.map((productoCarrito) => ({
+        id: productoCarrito.productoId,
+        producto: {
+          id: productoCarrito.producto.id,
+          nombre: productoCarrito.producto.nombre,
+          precio: productoCarrito.producto.precio,
+          imagen: productoCarrito.producto.imagenUrl,
+          cantidad: productoCarrito.cantidad,
+        },
+        cantidad: productoCarrito.cantidad,
+      })),
     };
   }
   
@@ -98,22 +109,26 @@ export class CarritoService {
   }
 
   // 📌 Vaciar el carrito de un usuario
-  async vaciarCarrito(usuarioId: number): Promise<void> {
-    // 🔹 Buscar el carrito del usuario
+  async vaciarCarrito(usuarioId: number, tiendaId: number): Promise<void> {
+    // 🔹 Buscar el carrito del usuario en la tienda indicada
     const carrito = await this.carritoRepository.findOne({
-      where: { usuario: { id: usuarioId } },
+      where: {
+        usuario: { id: usuarioId },
+        tienda: { id: tiendaId },
+      },
       relations: ['productosCarrito'],
     });
-
+  
     if (!carrito) {
-      throw new NotFoundException('Carrito no encontrado');
+      throw new NotFoundException('Carrito no encontrado para ese usuario y tienda');
     }
-
+  
     // 🔹 Eliminar los productos del carrito
     await this.productoCarritoRepository.delete({ carrito: { id: carrito.id } });
-
+  
     await this.carritoRepository.save(carrito);
   }
+  
 
   async obtenerUsuarioLogueado(usuarioId: number){
     const usuario = await this.usuariosService.obtenerUsuarioPorId(usuarioId);

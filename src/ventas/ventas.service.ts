@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Venta } from './venta.entity';
@@ -9,23 +14,23 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { TiendasService } from 'src/tiendas/tiendas.service';
 
-
-
 @Injectable()
 export class VentasService {
   constructor(
-    @InjectRepository(Venta) private readonly ventaRepository: Repository<Venta>,
-    @InjectRepository(ProductoVenta) private readonly productoVentaRepository: Repository<ProductoVenta>,
+    @InjectRepository(Venta)
+    private readonly ventaRepository: Repository<Venta>,
+    @InjectRepository(ProductoVenta)
+    private readonly productoVentaRepository: Repository<ProductoVenta>,
     private readonly carritoService: CarritoService,
     private readonly productosService: ProductosService,
     private readonly httpService: HttpService,
-    private readonly tiendasService : TiendasService,
+    private readonly tiendasService: TiendasService,
   ) {}
 
   // 📌 Realizar una venta desde el carrito
-  /* async realizarVenta(usuarioId: number, tiendaId): Promise<Venta> {
-    // 🔹 Obtener el carrito del usuario
-    const carrito = await this.carritoService.obtenerCarrito(usuarioId,tiendaId);
+  async realizarVenta(usuarioId: number, tiendaId: number): Promise<Venta> {
+    // 🔹 Obtener el carrito del usuario en esa tienda
+    const carrito = await this.carritoService.obtenerCarrito(usuarioId, tiendaId);
 
     if (!carrito || carrito.productosCarrito.length === 0) {
       throw new BadRequestException('El carrito está vacío');
@@ -38,14 +43,12 @@ export class VentasService {
     for (const productoCarrito of carrito.productosCarrito) {
       const { producto, cantidad } = productoCarrito;
 
-      // ✅ Usamos `ProductosService` para validar stock
       const productoValidado = await this.productosService.obtenerProductoPorId(producto.id);
 
       if (productoValidado.cantidad < cantidad) {
         throw new BadRequestException(`Stock insuficiente para ${productoValidado.nombre}`);
       }
 
-      // 🔹 Crear un nuevo ProductoVenta
       const productoVenta = this.productoVentaRepository.create({
         producto: productoValidado,
         cantidad,
@@ -55,30 +58,30 @@ export class VentasService {
       total += productoValidado.precio * cantidad;
       productosVenta.push(await this.productoVentaRepository.save(productoVenta));
 
-      // ✅ Usamos `ProductosService` para reducir el stock
       await this.productosService.reducirStock(productoValidado.id, cantidad);
     }
 
-    // 🔹 Crear la venta
+    // 🔹 Crear la venta incluyendo usuario y tienda
     const venta = this.ventaRepository.create({
       usuario: { id: usuarioId },
+      tienda: { id: tiendaId },
       productosVenta,
       total,
     });
 
     await this.ventaRepository.save(venta);
 
-    // ✅ Usamos `CarritoService` para vaciar el carrito
-    await this.carritoService.vaciarCarrito(usuarioId);
+    // ✅ Vaciar solo el carrito de esa tienda
+    await this.carritoService.vaciarCarrito(usuarioId, tiendaId);
 
     return venta;
-  } */
+  }
 
   // 📌 Obtener todas las ventas de un usuario
   async obtenerVentasUsuario(usuarioId: number): Promise<Venta[]> {
     return this.ventaRepository.find({
       where: { usuario: { id: usuarioId } },
-      relations: ['productosVenta', 'productosVenta.producto'],
+      relations: ['productosVenta', 'productosVenta.producto', 'tienda'],
     });
   }
 
@@ -86,7 +89,7 @@ export class VentasService {
   async obtenerVenta(ventaId: number): Promise<Venta> {
     const venta = await this.ventaRepository.findOne({
       where: { id: ventaId },
-      relations: ['productosVenta', 'productosVenta.producto'],
+      relations: ['productosVenta', 'productosVenta.producto', 'tienda'],
     });
 
     if (!venta) throw new NotFoundException('Venta no encontrada');
@@ -94,9 +97,8 @@ export class VentasService {
     return venta;
   }
 
-  //generamos el certificado de pruebas de la Dian
+  // 📌 Solicitar certificado de prueba a la DIAN
   async solicitarCertificado(pin: string, csrBase64: string) {
-
     const cleanedCsr = csrBase64.replace(/\r?\n|\r/g, '');
 
     const soapEnvelope = `
@@ -110,7 +112,7 @@ export class VentasService {
         </soapenv:Body>
       </soapenv:Envelope>
     `.trim();
-    
+
     try {
       const { data } = await lastValueFrom(
         this.httpService.post(
@@ -124,9 +126,9 @@ export class VentasService {
             timeout: 5000,
             transformRequest: [(data) => data],
           },
-        )
+        ),
       );
-    
+
       console.log('Respuesta de la DIAN:', data);
     } catch (error) {
       console.error('Error al llamar a la DIAN:', error?.response?.data || error.message);

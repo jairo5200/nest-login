@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany, JoinColumn
 import { Usuario } from 'src/usuarios/usuario.entity';
 import { Producto } from 'src/productos/producto.entity';
 import { Carrito } from 'src/carrito/carrito.entity';
+import { Venta } from 'src/ventas/venta.entity';
 
 @Entity({ name: 'tiendas' })
 export class Tienda {
@@ -32,4 +33,7 @@ export class Tienda {
   // Relación de uno a muchos con los carritos
   @OneToMany(() => Carrito, (carrito) => carrito.tienda)
   carritos: Carrito[];
+
+  @OneToMany(() => Venta, (venta) => venta.tienda)
+  ventas: Venta[];
 }
