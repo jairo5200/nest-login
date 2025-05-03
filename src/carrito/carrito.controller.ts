@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UseGuards, Req, Query } from '@nestjs/common';
 import { CarritoService } from './carrito.service';
 import { ModificarProductoDto } from './dto/agregar-producto.dto';
 import { JwtAuthGuard } from 'src/usuarios/jwt-auth.guard';
@@ -9,9 +9,9 @@ export class CarritoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  async obtenerCarrito(@Req() req,@Body() idTienda: number) {
+  async obtenerCarrito(@Req() req, @Query('tiendaId') tiendaId: number) {
     const usuarioId = req.user.userId;
-    return this.carritoService.obtenerCarrito(usuarioId,idTienda);
+    return this.carritoService.obtenerCarrito(usuarioId, Number(tiendaId));
   }
 
   // 📌 Agregar producto al carrito

@@ -23,7 +23,7 @@ export class VentasService {
   ) {}
 
   // 📌 Realizar una venta desde el carrito
-  async realizarVenta(usuarioId: number, tiendaId): Promise<Venta> {
+  /* async realizarVenta(usuarioId: number, tiendaId): Promise<Venta> {
     // 🔹 Obtener el carrito del usuario
     const carrito = await this.carritoService.obtenerCarrito(usuarioId,tiendaId);
 
@@ -72,7 +72,7 @@ export class VentasService {
     await this.carritoService.vaciarCarrito(usuarioId);
 
     return venta;
-  }
+  } */
 
   // 📌 Obtener todas las ventas de un usuario
   async obtenerVentasUsuario(usuarioId: number): Promise<Venta[]> {

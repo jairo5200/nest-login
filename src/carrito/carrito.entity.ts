@@ -9,7 +9,7 @@ export class Carrito {
   id: number;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.carritos, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'usuario_id' })
   usuario: Usuario;
 
   @ManyToOne(() => Tienda, (tienda) => tienda.carritos, { nullable: false })

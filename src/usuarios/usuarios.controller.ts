@@ -89,7 +89,7 @@ export class UsuariosController {
   // Método para obtener la información del usuario logueado
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async obtenerPerfil(@Req() req: any) {
+  async obtenerPerfil(@Req() req) {
     const usuarioId = req.user.userId;
     if (isNaN(usuarioId)) {
       throw new HttpException('ID del usuario inválido', HttpStatus.BAD_REQUEST);

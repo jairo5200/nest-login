@@ -50,7 +50,6 @@ export class ProductosController {
     try {
 
       const user = req.user as any; // Aquí recibimos el usuario (deberías tenerlo si usas AuthGuard y Passport)
-      console.log(user.userId); // Para depuración
 
       const imagenUrl = file ? file.filename : "";
 

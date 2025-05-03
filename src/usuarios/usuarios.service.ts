@@ -170,9 +170,7 @@ export class UsuariosService {
       email: user.email,
       roles: user.roles,
     };
-  
-    console.log('Payload al hacer login:', payload); // aquí debe aparecer el id bien
-  
+   
     const token = this.jwtService.sign(payload);
   
     res.cookie('jwt', token, {

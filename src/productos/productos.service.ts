@@ -21,7 +21,6 @@ export class ProductosService {
     const productoEncontrado = await this.productoRepository.findOne({
       where: { nombre: productoDto.nombre },
     });
-    console.log(productoDto.userId);
   
     if (productoEncontrado) {
       throw new HttpException(
