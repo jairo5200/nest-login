@@ -284,5 +284,22 @@ export class ProductosService {
       where: { tienda: { id: tienda.id } },  // Filtramos por el id de la tienda
     });
   }
+
+  async obtenerPorCategoria(categoriaId: number): Promise<Producto[]> {
+    return this.productoRepository.find({
+      where: { categoria: { id: categoriaId } },
+      relations: ['categoria', 'tienda'],
+    });
+  }
+
+  async obtenerPorCategoriaYTienda(categoriaId: number, tiendaId: number): Promise<Producto[]> {
+    return this.productoRepository.find({
+      where: {
+        categoria: { id: categoriaId },
+        tienda: { id: tiendaId },
+      },
+      relations: ['categoria', 'tienda'],
+    });
+  }
 }
 

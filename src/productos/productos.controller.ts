@@ -166,4 +166,17 @@ export class ProductosController {
     }
   }
 
+  @Get('categoria/:categoriaId')
+  async obtenerPorCategoria(@Param('categoriaId') categoriaId: number) {
+    return this.productosService.obtenerPorCategoria(categoriaId);
+  }
+
+  @Get('categoria/:categoriaId/tienda/:tiendaId')
+  async obtenerPorCategoriaYTienda(
+    @Param('categoriaId') categoriaId: number,
+    @Param('tiendaId') tiendaId: number,
+  ) {
+    return this.productosService.obtenerPorCategoriaYTienda(categoriaId, tiendaId);
+  }
+
 }
