@@ -44,4 +44,12 @@ export class CarritoController {
     return this.carritoService.obtenerTiendaPorIdUsuario(usuarioId);
   }
 
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('usuario-carritos')
+  async obtenerCarritosDelUsuario(@Req() req) {
+    const usuarioId = req.user.userId;
+    return this.carritoService.obtenerCarritosPorUsuario(usuarioId);
+  }
+
 }

@@ -135,8 +135,15 @@ export class CarritoService {
     return usuario;
   }
 
-    async obtenerTiendaPorIdUsuario(userId: number) {
-      const tienda = await this.tiendasService.obtenerTiendaPorIdUsuario(userId);
-      return tienda;
-    }
+  async obtenerTiendaPorIdUsuario(userId: number) {
+    const tienda = await this.tiendasService.obtenerTiendaPorIdUsuario(userId);
+    return tienda;
+  }
+
+  async obtenerCarritosPorUsuario(usuarioId: number){
+    return this.carritoRepository.find({
+      where: { usuario: { id: usuarioId } },
+      relations: ['tienda', 'productosCarrito', 'productosCarrito.producto'],
+    });
+  }
 }
